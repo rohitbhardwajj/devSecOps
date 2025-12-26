@@ -9,7 +9,7 @@ pipeline {
                 git url: "https://github.com/rohitbhardwajj/TaskVault.git", branch: "main"
             }
         }
-        
+
         stage('Install Dependencies') {
             steps {
                 // Frontend
@@ -40,19 +40,23 @@ pipeline {
 
         stage('OWASP Dependency Check') {
             steps {
-                // Frontend
-                dependencyCheck additionalArguments: '--scan .', odcInstallation: 'dc'
-                // Backend
-                dir('backend') {
-                    dependencyCheck additionalArguments: '--scan .', odcInstallation: 'dc'
-                }
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-            }
+        // Frontend
+        dependencyCheck additionalArguments: '--scan .', odcInstallation: 'dc'
+
+        // Backend
+        dir('backend') {
+            dependencyCheck additionalArguments: '--scan .', odcInstallation: 'dc'
         }
+
+        // Publisher
+        dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+    }
+}
+
 
         stage('Trivy File System Scan') {
             steps {
-                sh "trivy fs --format table -o trivy-fs-report.html ."
+                sh "trivy fs --format table -o trivy-fs-report.json ."
             }
         }
     }
